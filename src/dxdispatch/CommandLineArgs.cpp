@@ -25,7 +25,7 @@ CommandLineArgs::CommandLineArgs(int argc, char** argv)
         (
             "i,dispatch_repeat", 
             "[Benchmarking only] The number of times to repeat each dispatch", 
-            cxxopts::value<uint32_t>()->default_value("256")
+            cxxopts::value<uint32_t>()->default_value("128")
         )
         (
             "h,help", 

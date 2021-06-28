@@ -24,6 +24,6 @@ private:
     std::string m_adapterSubstring = "";
     std::string m_modelPath;
     std::string m_helpText;
-    uint32_t m_benchmarkingDispatchRepeat = 256;
+    uint32_t m_benchmarkingDispatchRepeat = 128;
     D3D12_COMMAND_LIST_TYPE m_commandListType = D3D12_COMMAND_LIST_TYPE_COMPUTE;
 };

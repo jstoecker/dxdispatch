@@ -91,75 +91,93 @@ void Executor::Run()
 
 void Executor::operator()(const Model::DispatchCommand& command)
 {
-    PIXScopedEvent(m_device->GetCommandList(), PIX_COLOR(255,255,0), "Dispatch '%s'", command.dispatchableName.c_str());
+    uint32_t executeIterations = m_commandLineArgs.BenchmarkingEnabled() ? 4 : 1;
+    std::vector<double> executeAverages;
 
-    auto& dispatchable = m_dispatchables[command.dispatchableName];
-    
-    Dispatchable::Bindings bindings;
-    try
+    for (uint32_t executeIteration = 0; executeIteration < executeIterations; executeIteration++)
     {
-        bindings = ResolveBindings(command.bindings);
-    }
-    catch (const std::exception& e)
-    {
-        std::cerr << "ERROR while resolving bindings: " << e.what() << '\n';
-        m_device->PrintDebugLayerMessages();
-        return;
-    }
+        PIXScopedEvent(m_device->GetCommandList(), PIX_COLOR(255,255,0), "Dispatch '%s'", command.dispatchableName.c_str());
 
-    PIXBeginEvent(PIX_COLOR(128,255,0), L"Dispatch");
-
-    Timer timer;
-    std::vector<double> dispatchDurations;
-    uint32_t dispatchIterations = m_commandLineArgs.BenchmarkingEnabled() ? 
-        m_commandLineArgs.BenchmarkingDispatchRepeat() : 
-        1;
-
-    try
-    {
-        dispatchable->Bind(bindings);
-    }
-    catch (const std::exception& e)
-    {
-        std::cerr << "ERROR while binding resources: " << e.what() << '\n';
-        m_device->PrintDebugLayerMessages();
-        return;
-    }
-
-    try
-    {
-        timer.Start();
-        for (uint32_t iteration = 0; iteration < dispatchIterations; iteration++)
+        auto& dispatchable = m_dispatchables[command.dispatchableName];
+        
+        Dispatchable::Bindings bindings;
+        try
         {
-            dispatchable->Dispatch(command);
-            if (iteration != dispatchIterations - 1)
-            {
-                auto uavBarrier = CD3DX12_RESOURCE_BARRIER::UAV(nullptr);
-                m_device->GetCommandList()->ResourceBarrier(1, &uavBarrier);
-            }
+            bindings = ResolveBindings(command.bindings);
         }
-        m_device->DispatchAndWait();
-        dispatchDurations.push_back(timer.End().DurationInMilliseconds() / dispatchIterations);
-    }
-    catch (const std::exception& e)
-    {
-        std::cerr << "ERROR while executing the dispatchable: " << e.what() << '\n';
-        m_device->PrintDebugLayerMessages();
-        return;
-    }
+        catch (const std::exception& e)
+        {
+            std::cerr << "ERROR while resolving bindings: " << e.what() << '\n';
+            m_device->PrintDebugLayerMessages();
+            return;
+        }
 
-    PIXEndEvent();
+        PIXBeginEvent(PIX_COLOR(128,255,0), L"Dispatch");
+
+        Timer timer;
+        std::vector<double> dispatchDurations;
+        uint32_t dispatchIterations = m_commandLineArgs.BenchmarkingEnabled() ? 
+            m_commandLineArgs.BenchmarkingDispatchRepeat() : 
+            1;
+
+        try
+        {
+            dispatchable->Bind(bindings);
+        }
+        catch (const std::exception& e)
+        {
+            std::cerr << "ERROR while binding resources: " << e.what() << '\n';
+            m_device->PrintDebugLayerMessages();
+            return;
+        }
+
+        try
+        {
+            timer.Start();
+            for (uint32_t iteration = 0; iteration < dispatchIterations; iteration++)
+            {
+                dispatchable->Dispatch(command);
+                if (iteration != dispatchIterations - 1)
+                {
+                    auto uavBarrier = CD3DX12_RESOURCE_BARRIER::UAV(nullptr);
+                    m_device->GetCommandList()->ResourceBarrier(1, &uavBarrier);
+                }
+            }
+            m_device->DispatchAndWait();
+            dispatchDurations.push_back(timer.End().DurationInMilliseconds() / dispatchIterations);
+        }
+        catch (const std::exception& e)
+        {
+            std::cerr << "ERROR while executing the dispatchable: " << e.what() << '\n';
+            m_device->PrintDebugLayerMessages();
+            return;
+        }
+
+        PIXEndEvent();
+
+        if (m_commandLineArgs.BenchmarkingEnabled())
+        {
+            double avgDispatch = 0;
+            for (auto& dur : dispatchDurations) 
+            { 
+                avgDispatch += dur; 
+            } 
+            avgDispatch /= dispatchDurations.size();
+
+            executeAverages.push_back(avgDispatch);
+        }
+    }
 
     if (m_commandLineArgs.BenchmarkingEnabled())
     {
-        double avgDispatch = 0;
-        for (auto& dur : dispatchDurations) 
-        { 
-            avgDispatch += dur; 
-        } 
-        avgDispatch /= dispatchDurations.size();
+        // Assuming multiple times, skip the first since it warms up the pipeline.
+        int skipped = std::min(1ull, executeAverages.size() - 1);
+        double avgTime = std::accumulate(
+            executeAverages.begin() + skipped, 
+            executeAverages.end(), 
+            0.0) / (executeAverages.size() - skipped);
 
-        std::cout << "Dispatch '" << command.dispatchableName << "': " << avgDispatch << " ms\n";
+        std::cout << "Dispatch '" << command.dispatchableName << "': " << avgTime << " ms\n";
     }
 }
 

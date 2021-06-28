@@ -14,6 +14,7 @@
 #include <fstream>
 #include <chrono>
 #include <functional>
+#include <numeric>
 
 #include <wrl/client.h>
 #include <wil/result.h>
