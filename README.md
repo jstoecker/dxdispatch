@@ -17,11 +17,11 @@ This tool is *not* designed to be a general-purpose framework for building large
 
 DxDispatch currently targets the following versions of DirectX components:
 
-| Component               | Version                                                                                             |
-| ----------------------- | --------------------------------------------------------------------------------------------------- |
-| DirectML                | [1.5.1](https://www.nuget.org/packages/Microsoft.AI.DirectML/1.5.1)                                 |
-| Direct3D 12             | [1.4.9 (Agility SDK)](https://www.nuget.org/packages/Microsoft.Direct3D.D3D12/1.4.9)                |
-| DirectX Shader Compiler | [April 2021 (v1.6.2104)](https://github.com/microsoft/DirectXShaderCompiler/releases/tag/v1.6.2104) |
+| Component               | Version                                                                                            |
+| ----------------------- | -------------------------------------------------------------------------------------------------- |
+| DirectML                | [1.6.0](https://www.nuget.org/packages/Microsoft.AI.DirectML/1.5.1)                                |
+| Direct3D 12             | [1.4.10 (Agility SDK)](https://www.nuget.org/packages/Microsoft.Direct3D.D3D12/1.4.10)             |
+| DirectX Shader Compiler | [June 2021 (v1.6.2106)](https://github.com/microsoft/DirectXShaderCompiler/releases/tag/v1.6.2106) |
 
 # System Requirements
 

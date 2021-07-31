@@ -14,7 +14,7 @@ if(NOT nuget_POPULATED)
 endif()
 
 set(direct3d_PACKAGE_ID Microsoft.Direct3D.D3D12)
-set(direct3d_PACKAGE_VERSION 1.4.9)
+set(direct3d_PACKAGE_VERSION 1.4.10)
 set(direct3d_PACKAGE_DIR ${nuget_SOURCE_DIR}/packages/${direct3d_PACKAGE_ID}.${direct3d_PACKAGE_VERSION})
 
 execute_process(

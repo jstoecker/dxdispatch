@@ -14,7 +14,7 @@ if(NOT nuget_POPULATED)
 endif()
 
 set(directml_PACKAGE_ID Microsoft.AI.DirectML)
-set(directml_PACKAGE_VERSION 1.5.1 CACHE STRING "Version of the DML redistributable")
+set(directml_PACKAGE_VERSION 1.6.0)
 set(directml_PACKAGE_DIR ${nuget_SOURCE_DIR}/packages/${directml_PACKAGE_ID}.${directml_PACKAGE_VERSION})
 
 execute_process(

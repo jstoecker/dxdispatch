@@ -1,7 +1,7 @@
 FetchContent_Declare(
     dxc
     PREFIX dxc
-    URL "https://github.com/microsoft/DirectXShaderCompiler/releases/download/v1.6.2104/dxc_2021_04-20.zip"
+    URL "https://github.com/microsoft/DirectXShaderCompiler/releases/download/v1.6.2106/dxc_2021_07_01.zip"
 )
 
 if(NOT dxc_POPULATED)
