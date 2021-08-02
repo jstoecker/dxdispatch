@@ -25,27 +25,6 @@ struct Timer
 
 Executor::Executor(Model& model, std::shared_ptr<Device> device, const CommandLineArgs& args) : m_model(model), m_device(device), m_commandLineArgs(args)
 {
-    // Create dispatchables.
-    for (auto& desc : model.GetDispatchableDescs())
-    {
-        try
-        {
-            if (std::holds_alternative<Model::HlslDispatchableDesc>(desc.value))
-            {
-                m_dispatchables[desc.name] = std::make_unique<HlslDispatchable>(device, std::get<Model::HlslDispatchableDesc>(desc.value));
-            }
-            else
-            {
-                m_dispatchables[desc.name] = std::make_unique<DmlDispatchable>(desc.name, device, std::get<Model::DmlDispatchableDesc>(desc.value));
-            }
-        }
-        catch(const std::exception& e)
-        {
-            device->PrintDebugLayerMessages();
-            throw std::invalid_argument(fmt::format("ERROR creating dispatchable '{}':", desc.name));
-        }
-    }
-
     // Initialize buffer resources.
     {
         PIXScopedEvent(m_device->GetCommandList(), PIX_COLOR(255,255,0), "Initialize resources");
@@ -59,6 +38,41 @@ Executor::Executor(Model& model, std::shared_ptr<Device> device, const CommandLi
         }
         device->DispatchAndWait();
         device->PrintDebugLayerMessages();
+    }
+
+    // Create dispatchables.
+    for (auto& desc : model.GetDispatchableDescs())
+    {
+        try
+        {
+            if (std::holds_alternative<Model::HlslDispatchableDesc>(desc.value))
+            {
+                m_dispatchables[desc.name] = std::make_unique<HlslDispatchable>(device, std::get<Model::HlslDispatchableDesc>(desc.value));
+            }
+            else
+            {
+                auto& dmlDispatchableDesc = std::get<Model::DmlDispatchableDesc>(desc.value);
+
+                Dispatchable::Bindings initBindings;
+                try
+                {
+                    initBindings = ResolveBindings(dmlDispatchableDesc.initBindings);
+                }
+                catch (const std::exception& e)
+                {
+                    std::cerr << "ERROR while resolving bindings: " << e.what() << '\n';
+                    m_device->PrintDebugLayerMessages();
+                    return;
+                }
+
+                m_dispatchables[desc.name] = std::make_unique<DmlDispatchable>(desc.name, device, dmlDispatchableDesc, initBindings);
+            }
+        }
+        catch(const std::exception& e)
+        {
+            device->PrintDebugLayerMessages();
+            throw std::invalid_argument(fmt::format("ERROR creating dispatchable '{}':", desc.name));
+        }
     }
 
     // Compile/initialize dispatchables.
@@ -246,7 +260,6 @@ void Executor::operator()(const Model::PrintCommand& command)
 Dispatchable::Bindings Executor::ResolveBindings(const Model::Bindings& modelBindings)
 {
     Dispatchable::Bindings bindings;
-    bindings.reserve(modelBindings.size());
 
     for (auto& modelBinding : modelBindings)
     {

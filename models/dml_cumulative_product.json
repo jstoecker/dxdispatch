@@ -5,13 +5,13 @@
     {
         "A": 
         {
-            "initialValuesDataType": "FLOAT16",
-            "initialValues": [8,8,8,8,8,8,8]
+            "initialValuesDataType": "FLOAT32",
+            "initialValues": [2,4,8,3]
         },
         "Out": 
         {
-            "initialValuesDataType": "FLOAT16",
-            "initialValues": { "valueCount": 7, "value": 0 }
+            "initialValuesDataType": "FLOAT32",
+            "initialValues": { "valueCount": 4, "value": 0 }
         }
     },
 
@@ -22,8 +22,8 @@
             "type": "DML_OPERATOR_CUMULATIVE_PRODUCT",
             "desc": 
             {
-                "InputTensor": { "DataType": "FLOAT16", "Sizes": [1,1,1,7] },
-                "OutputTensor": { "DataType": "FLOAT16", "Sizes": [1,1,1,7] },
+                "InputTensor": { "DataType": "FLOAT32", "Sizes": [1,1,1,4] },
+                "OutputTensor": { "DataType": "FLOAT32", "Sizes": [1,1,1,4] },
                 "Axis": 3,
                 "AxisDirection": "DML_AXIS_DIRECTION_INCREASING",
                 "HasExclusiveProduct": false

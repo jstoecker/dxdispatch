@@ -19,6 +19,23 @@ Model::Model(
     for (auto& dispatchableDesc : m_dispatchableDescs) 
     { 
         m_dispatchableDescsByName[dispatchableDesc.name] = &dispatchableDesc;
+
+        if (std::holds_alternative<DmlDispatchableDesc>(dispatchableDesc.value))
+        {
+            auto& dmlDispatchableDesc = std::get<DmlDispatchableDesc>(dispatchableDesc.value);
+            for (auto& binding : dmlDispatchableDesc.initBindings)
+            {
+                for (auto& sourceResource : binding.second)
+                {
+                    if (m_resourceDescsByName.find(sourceResource.name) == m_resourceDescsByName.end())
+                    {
+                        throw std::invalid_argument(fmt::format(
+                            "DML dispatchable attempts to bind resource '{}' for initialization, which does not exist in the model", 
+                            sourceResource.name));
+                    }
+                }
+            }
+        }
     }
 
     // Validate references to ops/resources in the model.

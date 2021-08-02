@@ -1119,37 +1119,6 @@ Model::HlslDispatchableDesc ParseModelHlslDispatchableDesc(const rapidjson::Valu
     return desc;
 }
 
-Model::DmlDispatchableDesc ParseModelDmlDispatchableDesc(const rapidjson::Value& object, BucketAllocator& allocator)
-{
-    Model::DmlDispatchableDesc desc;
-    desc.desc = ParseDmlOperatorDesc(object, false, allocator);
-    desc.bindPoints = GetBindPoints(*desc.desc);
-    desc.executionFlags = ParseDmlExecutionFlagsField(object, "executionFlags", false, DML_EXECUTION_FLAG_NONE);
-    return desc;
-}
-
-Model::DispatchableDesc ParseModelDispatchableDesc(std::string_view name, const rapidjson::Value& object, BucketAllocator& allocator)
-{
-    if (!object.IsObject())
-    {
-        throw std::invalid_argument("Expected a non-null JSON object.");
-    }
-
-    Model::DispatchableDesc desc;
-    desc.name = name;
-    auto type = ParseStringField(object, "type");
-    if (!stricmp(type.data(), "hlsl")) 
-    { 
-        desc.value = ParseModelHlslDispatchableDesc(object);
-    }
-    else
-    {
-        desc.value = ParseModelDmlDispatchableDesc(object, allocator);
-    }
-
-    return desc;
-}
-
 Model::BufferBindingSource ParseBufferBindingSource(const rapidjson::Value& value)
 {
     Model::BufferBindingSource bindingSource = {};
@@ -1193,6 +1162,47 @@ std::vector<Model::BufferBindingSource> ParseBindingSource(const rapidjson::Valu
         sourceResources.push_back(ParseBufferBindingSource(object));
     }
     return sourceResources;
+}
+
+Model::DmlDispatchableDesc ParseModelDmlDispatchableDesc(const rapidjson::Value& object, BucketAllocator& allocator)
+{
+    Model::DmlDispatchableDesc desc;
+    desc.desc = ParseDmlOperatorDesc(object, false, allocator);
+    desc.bindPoints = GetBindPoints(*desc.desc);
+    desc.executionFlags = ParseDmlExecutionFlagsField(object, "executionFlags", false, DML_EXECUTION_FLAG_NONE);
+
+    auto bindingsField = object.FindMember("bindings");
+    if (bindingsField != object.MemberEnd() && bindingsField->value.IsObject())
+    {
+        for (auto bindingMember = bindingsField->value.MemberBegin(); bindingMember != bindingsField->value.MemberEnd(); bindingMember++)
+        {
+            desc.initBindings[bindingMember->name.GetString()] = ParseBindingSource(bindingMember->value);
+        }
+    }
+
+    return desc;
+}
+
+Model::DispatchableDesc ParseModelDispatchableDesc(std::string_view name, const rapidjson::Value& object, BucketAllocator& allocator)
+{
+    if (!object.IsObject())
+    {
+        throw std::invalid_argument("Expected a non-null JSON object.");
+    }
+
+    Model::DispatchableDesc desc;
+    desc.name = name;
+    auto type = ParseStringField(object, "type");
+    if (!stricmp(type.data(), "hlsl")) 
+    { 
+        desc.value = ParseModelHlslDispatchableDesc(object);
+    }
+    else
+    {
+        desc.value = ParseModelDmlDispatchableDesc(object, allocator);
+    }
+
+    return desc;
 }
 
 Model::DispatchCommand ParseDispatchCommand(const rapidjson::Value& object)

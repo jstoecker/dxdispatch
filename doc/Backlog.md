@@ -9,7 +9,6 @@
 - HLSL resource arrays, including unbounded
 - Support fxc compiler
 - Improved shader PDB output path
-- Support OWNED_BY_DML flag on tensors (need to pass inputs during op initialization)
 
 **Binding**
 - Support flags (i.e. D3D12_DESCRIPTOR_RANGE_FLAGS)

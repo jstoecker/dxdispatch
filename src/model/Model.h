@@ -13,6 +13,26 @@
 class Model
 {
 public:
+    // When binding a buffer to an operator it is possible to use a subregion of
+    // the buffer by specifying an elementOffset, elementCount, and elementSizeInBytes.
+    // Additionally, an optional format specifier dictates how to interpret the buffer
+    // contents; when omitted the buffer will be interpreted using the same data type used
+    // to initialize it.
+    struct BufferBindingSource
+    {
+        std::string name;
+        uint64_t elementCount;
+        uint64_t elementSizeInBytes;
+        uint64_t elementOffset;
+        std::optional<DXGI_FORMAT> format;
+
+        // For Append/Consume buffers only:
+        std::optional<std::string> counterName;
+        uint64_t counterOffsetBytes;
+    };
+
+    using Bindings = std::unordered_map<std::string, std::vector<BufferBindingSource>>;
+
     // RESOURCES
     // ------------------------------------------------------------------------
 
@@ -51,6 +71,7 @@ public:
         DML_OPERATOR_DESC* desc;
         BindPoints bindPoints;
         DML_EXECUTION_FLAGS executionFlags;
+        Bindings initBindings;
     };
 
     struct HlslDispatchableDesc
@@ -73,26 +94,6 @@ public:
 
     // COMMANDS
     // ------------------------------------------------------------------------
-
-    // When binding a buffer to an operator it is possible to use a subregion of
-    // the buffer by specifying an elementOffset, elementCount, and elementSizeInBytes.
-    // Additionally, an optional format specifier dictates how to interpret the buffer
-    // contents; when omitted the buffer will be interpreted using the same data type used
-    // to initialize it.
-    struct BufferBindingSource
-    {
-        std::string name;
-        uint64_t elementCount;
-        uint64_t elementSizeInBytes;
-        uint64_t elementOffset;
-        std::optional<DXGI_FORMAT> format;
-
-        // For Append/Consume buffers only:
-        std::optional<std::string> counterName;
-        uint64_t counterOffsetBytes;
-    };
-
-    using Bindings = std::unordered_map<std::string, std::vector<BufferBindingSource>>;
 
     struct DispatchCommand
     {
