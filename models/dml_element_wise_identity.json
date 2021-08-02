@@ -23,15 +23,6 @@
             "desc": 
             {
                 "InputTensor": { "DataType": "FLOAT32", "Sizes": [3] },
-                "OutputTensor": { "DataType": "FLOAT32", "Sizes": [3] }
-            }
-        },
-        "identity_with_scalebias": 
-        {
-            "type": "DML_OPERATOR_ELEMENT_WISE_IDENTITY",
-            "desc": 
-            {
-                "InputTensor": { "DataType": "FLOAT32", "Sizes": [3] },
                 "OutputTensor": { "DataType": "FLOAT32", "Sizes": [3] },
                 "ScaleBias": { "Scale": 2, "Bias": 10 }
             }
@@ -43,16 +34,6 @@
         {
             "type": "dispatch",
             "dispatchable": "identity",
-            "bindings": 
-            {
-                "InputTensor": "A",
-                "OutputTensor": "Out"
-            }
-        },
-        { "type": "print", "resource": "Out" },
-        {
-            "type": "dispatch",
-            "dispatchable": "identity_with_scalebias",
             "bindings": 
             {
                 "InputTensor": "A",
