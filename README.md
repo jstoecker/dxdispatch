@@ -17,11 +17,11 @@ This tool is *not* designed to be a general-purpose framework for building large
 
 DxDispatch currently targets the following versions of DirectX components:
 
-| Component               | Version                                                                                            |
-| ----------------------- | -------------------------------------------------------------------------------------------------- |
-| DirectML                | [1.6.0](https://www.nuget.org/packages/Microsoft.AI.DirectML/1.5.1)                                |
-| Direct3D 12             | [1.4.10 (Agility SDK)](https://www.nuget.org/packages/Microsoft.Direct3D.D3D12/1.4.10)             |
-| DirectX Shader Compiler | [June 2021 (v1.6.2106)](https://github.com/microsoft/DirectXShaderCompiler/releases/tag/v1.6.2106) |
+| Component               | Version                                                                                                |
+| ----------------------- | ------------------------------------------------------------------------------------------------------ |
+| DirectML                | [1.8.0](https://www.nuget.org/packages/Microsoft.AI.DirectML/1.8.0)                                    |
+| Direct3D 12             | [1.4.10 (Agility SDK)](https://www.nuget.org/packages/Microsoft.Direct3D.D3D12/1.4.10)                 |
+| DirectX Shader Compiler | [December 2021 (v1.6.2106)](https://github.com/microsoft/DirectXShaderCompiler/releases/tag/v1.6.2112) |
 
 # System Requirements
 
@@ -52,15 +52,19 @@ Resource 'output': 6, 15, 24
 DxDispatch relies on several external dependencies that are downloaded when the project is configured. See [ThirdPartyNotices.txt](./ThirdPartyNotices.txt) for relevant license info.
 
 This project uses CMake so you may generate a build system of your choosing. However, some of the CMake scripts to fetch external dependencies currently assume a Visual Studio generator. Until this is resolved you'll want to stick with VS. Tested with the following configuration:
-- Microsoft Visual Studio 2019
-- Windows SDK 10.0.19041.0
+- Microsoft Visual Studio 2019/2022
+- Windows SDK 10.0.19041.0 or newer
 
 Example from a terminal in the clone directory (change install location as desired):
 
+**Generate, Build, and Install:**
 ```
-mkdir build
+cmake . -B build -DCMAKE_INSTALL_PREFIX=c:/dxdispatch
+cmake --build build --target INSTALL
+```
+
+**Test**:
+```
 cd build
-cmake -DCMAKE_INSTALL_PREFIX=c:/dxdispatch ..
-cmake --build . --target INSTALL
 ctest .
 ```

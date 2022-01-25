@@ -2,7 +2,6 @@ FetchContent_Declare(
     wil
     GIT_REPOSITORY https://github.com/Microsoft/wil
     GIT_TAG        2e225973d6c2ecf17fb4d376ddbeedb6db7dd82f
-    GIT_SHALLOW    ON
 )
 
 FetchContent_GetProperties(wil)

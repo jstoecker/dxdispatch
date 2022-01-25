@@ -1,7 +1,7 @@
 param
 (
     [string]$SchemaFilePath = "$PSScriptRoot\DmlSchema.json",
-    [string]$MaxFeatureLevel = "4.0"
+    [string]$MaxFeatureLevel = "5.0"
 )
 
 function ConvertSnakeToCamelCase($SnakeCaseName)
@@ -26,12 +26,6 @@ function WriteEnumParser($Enum)
     $Cpp += "    auto valueString = value.GetString();"
     foreach ($Value in $Enum.Values)
     {
-        # TODO: schema needs to be improved to indicate feature level on specific enums and their enum values. For now skip manually.
-        if ($Value -match "ELEMENT_WISE_QUANTIZED_LINEAR_ADD|DYNAMIC_QUANTIZE_LINEAR|ROI_ALIGN1|FEATURE_LEVEL_4_0")
-        {
-            Write-Host "Skipping '$Value' in '$($Enum.Name)': not supported until later feature levels"
-            continue
-        }
         if ($Value.StartsWith("$($Enum.Name)_"))
         {
             # Most enum values follow a "DML_<ENUM_NAME>_<VALUE>" convention. E.g. DML_TENSOR_DATA_TYPE_FLOAT32 is a value in
@@ -124,7 +118,7 @@ function WriteOperatorFunction($Operator)
         {
             $Cpp += "    desc->$($Field.Name) = fused ? nullptr : AsPointer(ParseDmlTensorDescArrayField(value, `"$($Field.Name)`", allocator, $Required));"
         }
-        elseif ($Field.Type -eq "bool")
+        elseif ($Field.Type -eq "bool" -or $Field.Type -eq "bool_uint32")
         {
             $Cpp += "    desc->$($Field.Name) = ParseBoolField(value, `"$($Field.Name)`", $Required) ? 1 : 0;"
         }

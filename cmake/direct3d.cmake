@@ -1,35 +1,15 @@
 FetchContent_Declare(
-    nuget
-    PREFIX nuget
-    URL "https://dist.nuget.org/win-x86-commandline/v5.3.0/nuget.exe"
-    DOWNLOAD_NO_EXTRACT 1
-    CONFIGURE_COMMAND ""
-    BUILD_COMMAND ""
-    UPDATE_COMMAND ""
-    INSTALL_COMMAND ""
+    direct3d
+    URL https://www.nuget.org/api/v2/package/Microsoft.Direct3D.D3D12/1.4.10
+    URL_HASH SHA256=8e7fc23973aedcc1d98584c7b260d0073b6fa6da3552da386566410ccea0ad26
 )
 
-if(NOT nuget_POPULATED)
-    FetchContent_Populate(nuget)
-endif()
-
-set(direct3d_PACKAGE_ID Microsoft.Direct3D.D3D12)
-set(direct3d_PACKAGE_VERSION 1.4.10)
-set(direct3d_PACKAGE_DIR ${nuget_SOURCE_DIR}/packages/${direct3d_PACKAGE_ID}.${direct3d_PACKAGE_VERSION})
-
-execute_process(
-    COMMAND 
-        ${nuget_SOURCE_DIR}/nuget.exe
-        install 
-        ${direct3d_PACKAGE_ID} 
-        -Version ${direct3d_PACKAGE_VERSION} 
-        -OutputDirectory ${nuget_SOURCE_DIR}/packages
-)
+FetchContent_MakeAvailable(direct3d)
 
 add_library(direct3d INTERFACE IMPORTED)
 add_library(Microsoft::Direct3D12 ALIAS direct3d)
 
-target_include_directories(direct3d INTERFACE ${direct3d_PACKAGE_DIR}/build/native/include)
+target_include_directories(direct3d INTERFACE ${direct3d_SOURCE_DIR}/build/native/include)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     set(direct3d_PLATFORM ${CMAKE_GENERATOR_PLATFORM})
@@ -53,13 +33,13 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 
 
     if (${direct3d_PLATFORM} MATCHES Win32)
-        set(direct3d_bin_dir ${direct3d_PACKAGE_DIR}/build/native/bin/win32)
+        set(direct3d_bin_dir ${direct3d_SOURCE_DIR}/build/native/bin/win32)
     elseif (${direct3d_PLATFORM} MATCHES x64)
-        set(direct3d_bin_dir ${direct3d_PACKAGE_DIR}/build/native/bin/x64)
+        set(direct3d_bin_dir ${direct3d_SOURCE_DIR}/build/native/bin/x64)
     elseif (${direct3d_PLATFORM} MATCHES ARM)
-        set(direct3d_bin_dir ${direct3d_PACKAGE_DIR}/build/native/bin/arm)
+        set(direct3d_bin_dir ${direct3d_SOURCE_DIR}/build/native/bin/arm)
     elseif (${direct3d_PLATFORM} MATCHES ARM64)
-        set(direct3d_bin_dir ${direct3d_PACKAGE_DIR}/build/native/bin/arm64)
+        set(direct3d_bin_dir ${direct3d_SOURCE_DIR}/build/native/bin/arm64)
     endif()
 
     install(

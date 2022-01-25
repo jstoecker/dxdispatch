@@ -1,12 +1,10 @@
 FetchContent_Declare(
     dxc
-    PREFIX dxc
-    URL "https://github.com/microsoft/DirectXShaderCompiler/releases/download/v1.6.2106/dxc_2021_07_01.zip"
+    URL https://github.com/microsoft/DirectXShaderCompiler/releases/download/v1.6.2112/dxc_2021_12_08.zip
+    URL_HASH SHA256=21bd1b79db4c394d0f624f98354dd4544ac1e7a168f81346704e289bd308d6ef    
 )
 
-if(NOT dxc_POPULATED)
-    FetchContent_Populate(dxc)
-endif()
+FetchContent_MakeAvailable(dxc)
 
 add_library(dxc SHARED IMPORTED)
 add_library(Microsoft::DXC ALIAS dxc)
